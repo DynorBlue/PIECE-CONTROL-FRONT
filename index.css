@@ -1,0 +1,322 @@
+:root {
+  --byd-red: #C8102E;
+  --byd-red-hover: #A00D24;
+  --byd-bg: #f0f2f5;
+  --byd-white: #ffffff;
+  --byd-text: #2d2d2d;
+  --byd-border: #dee2e6;
+  --byd-shadow: rgba(200, 16, 46, 0.15);
+}
+
+body {
+  background-color: var(--byd-bg);
+  color: var(--byd-text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.btn-byd {
+  background-color: var(--byd-red);
+  border-color: var(--byd-red);
+  color: var(--byd-white);
+}
+
+.btn-byd:hover,
+.btn-byd:focus-visible {
+  background-color: var(--byd-red-hover) !important;
+  border-color: var(--byd-red-hover) !important;
+  color: var(--byd-white) !important;
+}
+
+.btn-byd:active {
+  background-color: #8B0000 !important;
+  border-color: #8B0000 !important;
+  color: var(--byd-white) !important;
+}
+
+.btn-byd:disabled {
+  background-color: #e57373;
+  border-color: #e57373;
+  opacity: 0.7;
+}
+
+.btn-outline-byd {
+  color: var(--byd-red);
+  border-color: var(--byd-red);
+}
+
+.btn-outline-byd:hover {
+  background-color: var(--byd-red);
+  color: var(--byd-white);
+}
+
+.bg-byd {
+  background-color: var(--byd-red) !important;
+}
+
+.text-byd {
+  color: var(--byd-red) !important;
+}
+
+.border-byd {
+  border-color: var(--byd-red) !important;
+}
+
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--byd-bg) 0%, #e2e6ea 100%);
+  padding: 20px;
+}
+
+.login-card {
+  background: var(--byd-white);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 420px;
+  border-top: 4px solid var(--byd-red);
+}
+
+.login-logo {
+  height: 64px;
+  margin-bottom: 8px;
+}
+
+.login-title {
+  font-weight: 800;
+  color: var(--byd-text);
+  margin-bottom: 2px;
+  letter-spacing: -0.3px;
+}
+
+.login-subtitle {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.navbar-byd {
+  background: var(--byd-red) !important;
+  box-shadow: 0 2px 12px var(--byd-shadow);
+}
+
+.navbar-byd .navbar-brand {
+  color: var(--byd-white);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.2px;
+}
+
+.navbar-byd .navbar-brand:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.table-byd-header {
+  background-color: var(--byd-red);
+  color: var(--byd-white);
+}
+
+.table-byd-header th {
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 12px 10px !important;
+  white-space: nowrap;
+  border-bottom: none !important;
+}
+
+.table tbody td {
+  vertical-align: middle;
+  padding: 10px 10px;
+  font-size: 0.88rem;
+}
+
+.table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(200, 16, 46, 0.04) !important;
+}
+
+.table tbody tr td:first-child {
+  font-weight: 700;
+  color: var(--byd-red);
+  text-align: center;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+}
+
+.card-header {
+  border-bottom: 1px solid var(--byd-border);
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.card-header[role="button"]:hover {
+  background-color: #f8f9fa !important;
+}
+
+.card-footer {
+  border-top: 1px solid var(--byd-border);
+  border-radius: 0 0 12px 12px !important;
+}
+
+.badge-status {
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+}
+
+.btn-action {
+  padding: 4px 8px;
+  font-size: 0.82rem;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-action:hover {
+  transform: scale(1.1);
+}
+
+.form-label.small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #555;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.page-link {
+  color: var(--byd-text);
+  border: 1px solid var(--byd-border);
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  transition: all 0.15s ease;
+}
+
+.page-link:hover {
+  background-color: var(--byd-red);
+  border-color: var(--byd-red);
+  color: var(--byd-white);
+}
+
+.page-item.active .page-link {
+  background-color: var(--byd-red);
+  border-color: var(--byd-red);
+  color: var(--byd-white);
+  font-weight: 700;
+}
+
+.page-item.disabled .page-link {
+  color: #bbb;
+  pointer-events: none;
+}
+
+.modal-header.bg-byd {
+  padding: 14px 20px;
+}
+
+.table-responsive {
+  min-height: 200px;
+}
+
+.text-truncate-cell {
+  max-width: 160px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.btn-close-white:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.3);
+}
+
+#viewContent .detail-label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+#viewContent .detail-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--byd-text);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+.fade-in:nth-child(1) { animation-delay: 0s; }
+.fade-in:nth-child(2) { animation-delay: 0.03s; }
+.fade-in:nth-child(3) { animation-delay: 0.06s; }
+.fade-in:nth-child(4) { animation-delay: 0.09s; }
+.fade-in:nth-child(5) { animation-delay: 0.12s; }
+.fade-in:nth-child(6) { animation-delay: 0.15s; }
+.fade-in:nth-child(7) { animation-delay: 0.18s; }
+.fade-in:nth-child(8) { animation-delay: 0.21s; }
+.fade-in:nth-child(9) { animation-delay: 0.24s; }
+.fade-in:nth-child(10) { animation-delay: 0.27s; }
+
+@media (max-width: 768px) {
+  .login-card {
+    padding: 30px 20px;
+  }
+
+  .login-logo {
+    height: 48px;
+  }
+
+  .login-title {
+    font-size: 1.4rem;
+  }
+
+  .navbar-byd .navbar-brand {
+    font-size: 1rem;
+  }
+
+  .table tbody td {
+    font-size: 0.8rem;
+    padding: 8px 6px;
+  }
+
+  .text-truncate-cell {
+    max-width: 100px;
+  }
+
+  .btn-action {
+    padding: 3px 6px;
+    font-size: 0.75rem;
+  }
+
+  .table-byd-header th {
+    font-size: 0.7rem;
+    padding: 10px 6px !important;
+  }
+}
