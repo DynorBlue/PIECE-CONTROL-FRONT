@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="index.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -71,6 +72,11 @@
         <li class="nav-item">
           <button class="nav-link" data-tab="estadisticas">
             <i class="bi bi-bar-chart-fill me-1"></i>Estadísticas
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-tab="reportes">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Reportes
           </button>
         </li>
       </ul>
@@ -310,6 +316,116 @@
           <div class="text-center text-muted py-4">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
             <span class="small">Cargando estadísticas...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content-pane" id="tab-reportes">
+    <div class="container-fluid py-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h4 class="mb-0 fw-bold">
+          <i class="bi bi-file-earmark-spreadsheet me-2 text-byd"></i>Reportes
+        </h4>
+        <button class="btn btn-byd px-4" id="exportExcelBtn">
+          <i class="bi bi-download me-1"></i>Exportar Excel
+        </button>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3" role="button" data-bs-toggle="collapse" data-bs-target="#rptFilterCollapse" aria-expanded="true">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-funnel me-2 text-byd"></i>Filtros de Reporte</h5>
+          <i class="bi bi-chevron-up" id="rptFilterToggleIcon"></i>
+        </div>
+        <div class="collapse show" id="rptFilterCollapse">
+          <div class="card-body pt-0">
+            <div class="row g-3 mt-2">
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Número de Parte</label>
+                <input type="text" class="form-control form-control-sm" id="rptFilterNumberPart" placeholder="Buscar...">
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">VIN</label>
+                <input type="text" class="form-control form-control-sm" id="rptFilterVin" placeholder="Buscar...">
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Operador</label>
+                <input type="text" class="form-control form-control-sm" id="rptFilterOperator" placeholder="Buscar...">
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Bodega/Stock</label>
+                <select class="form-select form-select-sm" id="rptFilterStock">
+                  <option value="">Todos</option>
+                  <option value="BIG">BIG</option>
+                  <option value="LITTLE">LITTLE</option>
+                </select>
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Estado</label>
+                <select class="form-select form-select-sm" id="rptFilterStatus">
+                  <option value="">Todos</option>
+                  <option value="CREATED">CREATED</option>
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="THIRTY_DAYS">THIRTY_DAYS</option>
+                  <option value="SIXTY_DAYS">SIXTY_DAYS</option>
+                  <option value="DESTROYED">DESTROYED</option>
+                  <option value="LOST">LOST</option>
+                </select>
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Fecha Bodega Desde</label>
+                <input type="date" class="form-control form-control-sm" id="rptFilterDateEntryFrom">
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Fecha Bodega Hasta</label>
+                <input type="date" class="form-control form-control-sm" id="rptFilterDateEntryTo">
+              </div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-byd btn-sm px-4" id="rptApplyFilterBtn">
+                <i class="bi bi-search me-1"></i>Aplicar Filtros
+              </button>
+              <button class="btn btn-outline-secondary btn-sm px-4" id="rptClearFilterBtn">
+                <i class="bi bi-x-circle me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="small text-muted" id="rptResultCount">0 piezas encontradas</span>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="rptTable">
+              <thead class="table-byd-header">
+                <tr>
+                  <th class="text-center" style="width:60px">ID</th>
+                  <th>Número de Parte</th>
+                  <th>VIN</th>
+                  <th>Vehículo</th>
+                  <th>Núm. Reporte</th>
+                  <th>Descripción</th>
+                  <th>Operador</th>
+                  <th class="text-center">Stock</th>
+                  <th class="text-center">Estado</th>
+                  <th>Fecha Reporte</th>
+                  <th>Fecha Ingreso</th>
+                </tr>
+              </thead>
+              <tbody id="rptTableBody">
+                <tr>
+                  <td colspan="11" class="text-center text-muted py-5">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    <span class="small">Aplica filtros para ver resultados</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

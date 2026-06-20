@@ -443,6 +443,15 @@ body {
   border-radius: 20px;
 }
 
+#rptTable td {
+  font-size: .82rem;
+  padding: 8px 8px;
+}
+#rptTable th {
+  font-size: .72rem;
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .login-card {
     padding: 30px 20px;

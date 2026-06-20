@@ -466,6 +466,8 @@ function switchTab(tabName) {
     renderLabelingGrid();
   } else if (tabName === 'estadisticas') {
     renderEstadisticas();
+  } else if (tabName === 'reportes') {
+    renderReportes();
   }
 }
 
@@ -634,6 +636,102 @@ function renderEstadisticas() {
     </tbody></table></div>`;
 }
 
+function getRptFilterData() {
+  const val = id => { const v = document.getElementById(id).value; return v || ''; };
+  return {
+    numberPart: val('rptFilterNumberPart'),
+    vin: val('rptFilterVin'),
+    operator: val('rptFilterOperator'),
+    stock: val('rptFilterStock'),
+    status: val('rptFilterStatus'),
+    dateEntryFrom: val('rptFilterDateEntryFrom'),
+    dateEntryTo: val('rptFilterDateEntryTo')
+  };
+}
+
+function applyRptFilters(pieces, filters) {
+  let filtered = [...pieces];
+  if (filters.numberPart) filtered = filtered.filter(p => (p.numberPart || '').toLowerCase().includes(filters.numberPart.toLowerCase()));
+  if (filters.vin) filtered = filtered.filter(p => (p.vin || '').toLowerCase().includes(filters.vin.toLowerCase()));
+  if (filters.operator) filtered = filtered.filter(p => (p.operator || '').toLowerCase().includes(filters.operator.toLowerCase()));
+  if (filters.stock) filtered = filtered.filter(p => p.stock === filters.stock);
+  if (filters.status) filtered = filtered.filter(p => p.status === filters.status);
+  if (filters.dateEntryFrom) filtered = filtered.filter(p => p.dateEntry && new Date(p.dateEntry) >= new Date(filters.dateEntryFrom));
+  if (filters.dateEntryTo) filtered = filtered.filter(p => p.dateEntry && new Date(p.dateEntry) <= new Date(filters.dateEntryTo + 'T23:59:59'));
+  return filtered;
+}
+
+function renderReportes() {
+  const tbody = document.getElementById('rptTableBody');
+  if (!tbody || !allPieces || allPieces.length === 0) return;
+
+  const filters = getRptFilterData();
+  const filtered = applyRptFilters(allPieces, filters);
+
+  document.getElementById('rptResultCount').textContent = `${filtered.length} pieza${filtered.length !== 1 ? 's' : ''} encontrada${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11" class="text-center text-muted py-5">
+      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+      <span class="small">No se encontraron piezas con los filtros seleccionados</span>
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(p => `<tr>
+    <td class="text-center fw-bold" style="color:var(--byd-red)">${p.idPiece}</td>
+    <td><span title="${p.numberPart}">${p.numberPart}</span></td>
+    <td>${p.vin || '—'}</td>
+    <td>${p.vehiculo || '—'}</td>
+    <td>${p.claimApplicationForm || '—'}</td>
+    <td><span class="text-truncate-cell" title="${p.description || ''}">${p.description || '—'}</span></td>
+    <td>${p.operator || '—'}</td>
+    <td class="text-center">${badgeStock(p.stock)}</td>
+    <td class="text-center">${badgeStatus(p.status)}</td>
+    <td class="small">${formatDateTime(p.reportingDate)}</td>
+    <td class="small">${formatDateTime(p.dateEntry)}</td>
+  </tr>`).join('');
+}
+
+function exportToExcel() {
+  const filters = getRptFilterData();
+  const filtered = applyRptFilters(allPieces, filters);
+
+  if (filtered.length === 0) {
+    Swal.fire({ icon: 'warning', title: 'Sin datos', text: 'No hay piezas para exportar con los filtros actuales', confirmButtonColor: '#C8102E' });
+    return;
+  }
+
+  const data = filtered.map(p => ({
+    ID: p.idPiece,
+    'Número de Parte': p.numberPart || '',
+    VIN: p.vin || '',
+    Vehículo: p.vehiculo || '',
+    'Número de Reporte': p.claimApplicationForm || '',
+    Descripción: p.description || '',
+    'Fecha de Reporte': p.reportingDate ? new Date(p.reportingDate).toLocaleString('es-MX') : '',
+    Operador: p.operator || '',
+    Stock: p.stock || '',
+    Estado: p.status || '',
+    'Fecha Ingreso': p.dateEntry ? new Date(p.dateEntry).toLocaleString('es-MX') : '',
+    'QR UUID': p.qrUuid || ''
+  }));
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(data);
+
+  const colWidths = [
+    { wch: 6 }, { wch: 18 }, { wch: 14 }, { wch: 14 },
+    { wch: 16 }, { wch: 30 }, { wch: 18 },
+    { wch: 14 }, { wch: 8 }, { wch: 14 },
+    { wch: 18 }, { wch: 38 }
+  ];
+  ws['!cols'] = colWidths;
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Piezas');
+  XLSX.writeFile(wb, `reporte_piezas_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
 async function showQrModal(id) {
   const piece = allPieces.find(p => p.idPiece === id);
   if (!piece) return;
@@ -782,6 +880,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('clearFilterBtn').addEventListener('click', clearFilters);
 
+  document.getElementById('rptApplyFilterBtn').addEventListener('click', renderReportes);
+  document.getElementById('rptClearFilterBtn').addEventListener('click', () => {
+    ['rptFilterNumberPart', 'rptFilterVin', 'rptFilterOperator', 'rptFilterStock', 'rptFilterStatus', 'rptFilterDateEntryFrom', 'rptFilterDateEntryTo'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    renderReportes();
+  });
+  document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+
+  document.querySelectorAll('#rptFilterCollapse input, #rptFilterCollapse select').forEach(el => {
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        renderReportes();
+      }
+    });
+  });
+
   document.getElementById('pageSizeSelect').addEventListener('change', e => {
     pageSize = parseInt(e.target.value);
     currentPage = 0;
@@ -839,6 +956,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('exportPdfBtn').addEventListener('click', exportToPdf);
+
+  const rptFilterToggle = document.querySelector('[data-bs-target="#rptFilterCollapse"]');
+  if (rptFilterToggle) {
+    rptFilterToggle.addEventListener('click', () => {
+      const icon = document.getElementById('rptFilterToggleIcon');
+      icon.classList.toggle('bi-chevron-up');
+      icon.classList.toggle('bi-chevron-down');
+    });
+  }
 
   const filterToggle = document.querySelector('[data-bs-target="#filterCollapse"]');
   if (filterToggle) {
