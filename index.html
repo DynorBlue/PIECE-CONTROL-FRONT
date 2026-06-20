@@ -7,6 +7,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -53,129 +55,173 @@
     </div>
   </nav>
 
-  <div class="container-fluid py-4">
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center py-3" role="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true">
-        <h5 class="mb-0 fw-bold"><i class="bi bi-funnel me-2 text-byd"></i>Filtros</h5>
-        <i class="bi bi-chevron-up" id="filterToggleIcon"></i>
-      </div>
-      <div class="collapse show" id="filterCollapse">
-        <div class="card-body pt-0">
-          <div class="row g-3 mt-2">
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">Number Part</label>
-              <input type="text" class="form-control form-control-sm" id="filterNumberPart" placeholder="Buscar...">
+  <div class="tab-nav-bar">
+    <div class="container-fluid">
+      <ul class="nav nav-pills" id="mainTabs">
+        <li class="nav-item">
+          <button class="nav-link active" data-tab="piezas">
+            <i class="bi bi-box-seam me-1"></i>Piezas
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-tab="etiquetado">
+            <i class="bi bi-qr-code me-1"></i>Zona de Etiquetado
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tab-content-pane active" id="tab-piezas">
+    <div class="container-fluid py-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3" role="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-funnel me-2 text-byd"></i>Filtros</h5>
+          <i class="bi bi-chevron-up" id="filterToggleIcon"></i>
+        </div>
+        <div class="collapse show" id="filterCollapse">
+          <div class="card-body pt-0">
+            <div class="row g-3 mt-2">
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Número de Parte</label>
+                <input type="text" class="form-control form-control-sm" id="filterNumberPart" placeholder="Buscar...">
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">VIN</label>
+                <input type="text" class="form-control form-control-sm" id="filterVin" placeholder="Buscar...">
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Operador</label>
+                <input type="text" class="form-control form-control-sm" id="filterOperator" placeholder="Buscar...">
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Bodega/Stock</label>
+                <select class="form-select form-select-sm" id="filterStock">
+                  <option value="">Todos</option>
+                  <option value="BIG">BIG</option>
+                  <option value="LITTLE">LITTLE</option>
+                </select>
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Estado</label>
+                <select class="form-select form-select-sm" id="filterStatus">
+                  <option value="">Todos</option>
+                  <option value="CREATED">CREATED</option>
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="THIRTY_DAYS">THIRTY_DAYS</option>
+                  <option value="SIXTY_DAYS">SIXTY_DAYS</option>
+                  <option value="DESTROYED">DESTROYED</option>
+                  <option value="LOST">LOST</option>
+                </select>
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Fecha Bodega Desde</label>
+                <input type="date" class="form-control form-control-sm" id="filterDateEntryFrom">
+              </div>
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <label class="form-label small">Fecha Bodega Hasta</label>
+                <input type="date" class="form-control form-control-sm" id="filterDateEntryTo">
+              </div>
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">VIN</label>
-              <input type="text" class="form-control form-control-sm" id="filterVin" placeholder="Buscar...">
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">Stock</label>
-              <select class="form-select form-select-sm" id="filterStock">
-                <option value="">Todos</option>
-                <option value="BIG">BIG</option>
-                <option value="LITTLE">LITTLE</option>
-              </select>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">Status</label>
-              <select class="form-select form-select-sm" id="filterStatus">
-                <option value="">Todos</option>
-                <option value="CREATED">CREATED</option>
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="THIRTY_DAYS">THIRTY_DAYS</option>
-                <option value="SIXTY_DAYS">SIXTY_DAYS</option>
-                <option value="DESTROYED">DESTROYED</option>
-                <option value="LOST">LOST</option>
-              </select>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">Operator</label>
-              <input type="text" class="form-control form-control-sm" id="filterOperator" placeholder="Buscar...">
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">Date Entry Desde</label>
-              <input type="date" class="form-control form-control-sm" id="filterDateEntryFrom">
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">Date Entry Hasta</label>
-              <input type="date" class="form-control form-control-sm" id="filterDateEntryTo">
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">Reporting Date Desde</label>
-              <input type="date" class="form-control form-control-sm" id="filterReportingDateFrom">
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-              <label class="form-label small">Reporting Date Hasta</label>
-              <input type="date" class="form-control form-control-sm" id="filterReportingDateTo">
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-byd btn-sm px-4" id="applyFilterBtn">
+                <i class="bi bi-search me-1"></i>Filtrar
+              </button>
+              <button class="btn btn-outline-secondary btn-sm px-4" id="clearFilterBtn">
+                <i class="bi bi-x-circle me-1"></i>Limpiar
+              </button>
             </div>
           </div>
-          <div class="d-flex gap-2 mt-3">
-            <button class="btn btn-byd btn-sm px-4" id="applyFilterBtn">
-              <i class="bi bi-search me-1"></i>Filtrar
-            </button>
-            <button class="btn btn-outline-secondary btn-sm px-4" id="clearFilterBtn">
-              <i class="bi bi-x-circle me-1"></i>Limpiar
-            </button>
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h4 class="mb-0 fw-bold">
+          <i class="bi bi-box-seam me-2 text-byd"></i>Piezas
+          <span class="badge bg-byd ms-2" id="totalPiecesBadge">0</span>
+        </h4>
+        <button class="btn btn-byd" id="createPieceBtn">
+          <i class="bi bi-plus-lg me-1"></i>Nueva Pieza
+        </button>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="piecesTable">
+              <thead class="table-byd-header">
+                <tr>
+                  <th class="text-center" style="width:60px">ID</th>
+                  <th>Número de Parte</th>
+                  <th>VIN</th>
+                  <th>Vehículo</th>
+                  <th>Descripción</th>
+                  <th>Operador</th>
+                  <th class="text-center">Bodega/Stock</th>
+                  <th class="text-center">Estado</th>
+                  <th>Fecha Bodega</th>
+                  <th class="text-center" style="width:120px">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="piecesTableBody">
+                <tr>
+                  <td colspan="10" class="text-center text-muted py-5">
+                    <div class="spinner-border text-byd mb-2" role="status">
+                      <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <div class="small">Cargando piezas...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-3" id="paginationFooter">
+          <small class="text-muted" id="paginationInfo">Mostrando 0-0 de 0 piezas</small>
+          <div class="d-flex align-items-center gap-2">
+            <label class="small text-muted mb-0 d-none d-md-inline">Filas:</label>
+            <select class="form-select form-select-sm" id="pageSizeSelect" style="width:auto;min-width:70px">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <nav>
+              <ul class="pagination pagination-sm mb-0" id="paginationNav"></ul>
+            </nav>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-      <h4 class="mb-0 fw-bold">
-        <i class="bi bi-box-seam me-2 text-byd"></i>Piezas
-        <span class="badge bg-byd ms-2" id="totalPiecesBadge">0</span>
-      </h4>
-      <button class="btn btn-byd" id="createPieceBtn">
-        <i class="bi bi-plus-lg me-1"></i>Nueva Pieza
-      </button>
-    </div>
-
-    <div class="card shadow-sm">
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0" id="piecesTable">
-            <thead class="table-byd-header">
-              <tr>
-                <th class="text-center" style="width:60px">ID</th>
-                <th>Number Part</th>
-                <th>VIN</th>
-                <th>Vehicle</th>
-                <th>Description</th>
-                <th>Operator</th>
-                <th class="text-center">Stock</th>
-                <th class="text-center">Status</th>
-                <th>Date Entry</th>
-                <th class="text-center" style="width:120px">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="piecesTableBody">
-              <tr>
-                <td colspan="10" class="text-center text-muted py-5">
-                  <div class="spinner-border text-byd mb-2" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                  </div>
-                  <div class="small">Cargando piezas...</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+  <div class="tab-content-pane" id="tab-etiquetado">
+    <div class="container-fluid py-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h4 class="mb-0 fw-bold">
+          <i class="bi bi-qr-code me-2 text-byd"></i>Zona de Etiquetado
+          <span class="badge bg-byd ms-2" id="selectedCountBadge">0</span>
+        </h4>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" id="selectAllBtn">
+            <i class="bi bi-check-all me-1"></i>Seleccionar todo
+          </button>
+          <button class="btn btn-outline-secondary btn-sm d-none" id="deselectAllBtn">
+            <i class="bi bi-x-lg me-1"></i>Deseleccionar todo
+          </button>
+          <button class="btn btn-byd" id="exportPdfBtn" disabled>
+            <i class="bi bi-filetype-pdf me-1"></i>Exportar a PDF
+          </button>
         </div>
       </div>
-      <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-3" id="paginationFooter">
-        <small class="text-muted" id="paginationInfo">Mostrando 0-0 de 0 piezas</small>
-        <div class="d-flex align-items-center gap-2">
-          <label class="small text-muted mb-0 d-none d-md-inline">Filas:</label>
-          <select class="form-select form-select-sm" id="pageSizeSelect" style="width:auto;min-width:70px">
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-          </select>
-          <nav>
-            <ul class="pagination pagination-sm mb-0" id="paginationNav"></ul>
-          </nav>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="row g-3" id="labelingGrid">
+            <div class="col-12 text-center text-muted py-5">
+              <i class="bi bi-inbox fs-1 d-block mb-2 text-byd"></i>
+              <span class="small">Cargando piezas...</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -183,7 +229,7 @@
 </div>
 
 <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-byd text-white py-3">
         <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Nueva Pieza</h5>
@@ -193,35 +239,35 @@
         <form id="createForm" autocomplete="off">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Number Part <span class="text-danger">*</span></label>
+              <label class="form-label">Número de Parte <span class="text-danger">*</span></label>
               <input type="text" class="form-control" name="numberPart" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label">VIN <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="vin" required>
+              <label class="form-label">VIN</label>
+              <input type="text" class="form-control" name="vin">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Reporting Date</label>
+              <label class="form-label">Fecha de Reporte</label>
               <input type="datetime-local" class="form-control" name="reportingDate">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Claim App. Form <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="claimApplicationForm" required>
+              <label class="form-label">Número de Reporte</label>
+              <input type="text" class="form-control" name="claimApplicationForm">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Vehicle <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="vehiculo" required>
+              <label class="form-label">Vehículo</label>
+              <input type="text" class="form-control" name="vehiculo">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Operator <span class="text-danger">*</span></label>
+              <label class="form-label">Operador <span class="text-danger">*</span></label>
               <input type="text" class="form-control" name="operator" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Date Entry <span class="text-danger">*</span></label>
+              <label class="form-label">Fecha Bodega <span class="text-danger">*</span></label>
               <input type="datetime-local" class="form-control" name="dateEntry" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Stock <span class="text-danger">*</span></label>
+              <label class="form-label">Bodega/Stock <span class="text-danger">*</span></label>
               <select class="form-select" name="stock" required>
                 <option value="">Seleccione...</option>
                 <option value="BIG">BIG</option>
@@ -229,7 +275,7 @@
               </select>
             </div>
             <div class="col-12">
-              <label class="form-label">Description</label>
+              <label class="form-label">Descripción</label>
               <textarea class="form-control" name="description" rows="2"></textarea>
             </div>
           </div>
@@ -247,7 +293,7 @@
 </div>
 
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-byd text-white py-3">
         <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Pieza</h5>
@@ -258,7 +304,7 @@
           <input type="hidden" name="idPiece">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Number Part</label>
+              <label class="form-label">Número de Parte</label>
               <input type="text" class="form-control" name="numberPart">
             </div>
             <div class="col-md-6">
@@ -266,27 +312,27 @@
               <input type="text" class="form-control" name="vin">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Reporting Date</label>
+              <label class="form-label">Fecha de Reporte</label>
               <input type="datetime-local" class="form-control" name="reportingDate">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Claim App. Form</label>
+              <label class="form-label">Número de Reporte</label>
               <input type="text" class="form-control" name="claimApplicationForm">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Vehicle</label>
+              <label class="form-label">Vehículo</label>
               <input type="text" class="form-control" name="vehiculo">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Operator</label>
+              <label class="form-label">Operador</label>
               <input type="text" class="form-control" name="operator">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Date Entry</label>
+              <label class="form-label">Fecha Bodega</label>
               <input type="datetime-local" class="form-control" name="dateEntry">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Stock</label>
+              <label class="form-label">Bodega/Stock</label>
               <select class="form-select" name="stock">
                 <option value="">Seleccione...</option>
                 <option value="BIG">BIG</option>
@@ -294,7 +340,7 @@
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Status</label>
+              <label class="form-label">Estado</label>
               <select class="form-select" name="status">
                 <option value="">Seleccione...</option>
                 <option value="CREATED">CREATED</option>
@@ -306,7 +352,7 @@
               </select>
             </div>
             <div class="col-12">
-              <label class="form-label">Description</label>
+              <label class="form-label">Descripción</label>
               <textarea class="form-control" name="description" rows="2"></textarea>
             </div>
           </div>
@@ -324,7 +370,7 @@
 </div>
 
 <div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-byd text-white py-3">
         <h5 class="modal-title fw-bold"><i class="bi bi-eye me-2"></i>Detalle de Pieza</h5>
@@ -335,6 +381,21 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-byd text-white py-2">
+        <h6 class="modal-title fw-bold" id="qrModalTitle">QR</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center py-4">
+        <img id="qrModalImage" src="" alt="QR" class="img-fluid" style="max-width:250px">
+        <div class="mt-2 small text-muted" id="qrModalSubtitle"></div>
       </div>
     </div>
   </div>

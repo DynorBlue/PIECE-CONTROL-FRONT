@@ -19,6 +19,7 @@ let currentPage = 0;
 let pageSize = 10;
 let totalElements = 0;
 let totalPages = 0;
+let selectedPieces = new Set();
 
 function formatDateTime(dt) {
   if (!dt) return '—';
@@ -125,26 +126,20 @@ function applyClientFilters() {
   const vin = val('filterVin').toLowerCase();
   if (vin) filtered = filtered.filter(p => (p.vin || '').toLowerCase().includes(vin));
 
+  const operator = val('filterOperator').toLowerCase();
+  if (operator) filtered = filtered.filter(p => (p.operator || '').toLowerCase().includes(operator));
+
   const stock = val('filterStock');
   if (stock) filtered = filtered.filter(p => p.stock === stock);
 
   const status = val('filterStatus');
   if (status) filtered = filtered.filter(p => p.status === status);
 
-  const operator = val('filterOperator').toLowerCase();
-  if (operator) filtered = filtered.filter(p => (p.operator || '').toLowerCase().includes(operator));
-
   const dateEntryFrom = val('filterDateEntryFrom');
   if (dateEntryFrom) filtered = filtered.filter(p => p.dateEntry && new Date(p.dateEntry) >= new Date(dateEntryFrom));
 
   const dateEntryTo = val('filterDateEntryTo');
   if (dateEntryTo) filtered = filtered.filter(p => p.dateEntry && new Date(p.dateEntry) <= new Date(dateEntryTo + 'T23:59:59'));
-
-  const reportingDateFrom = val('filterReportingDateFrom');
-  if (reportingDateFrom) filtered = filtered.filter(p => p.reportingDate && new Date(p.reportingDate) >= new Date(reportingDateFrom));
-
-  const reportingDateTo = val('filterReportingDateTo');
-  if (reportingDateTo) filtered = filtered.filter(p => p.reportingDate && new Date(p.reportingDate) <= new Date(reportingDateTo + 'T23:59:59'));
 
   return filtered;
 }
@@ -176,11 +171,18 @@ async function loadPieces() {
 
     if (!Array.isArray(allPieces)) allPieces = [];
 
+    selectedPieces.forEach(id => {
+      if (!allPieces.some(p => p.idPiece === id)) {
+        selectedPieces.delete(id);
+      }
+    });
+
     const filtered = applyClientFilters();
     const page = paginatePieces(filtered);
 
     renderTable(page);
     renderPagination();
+    renderLabelingGrid();
   } catch (err) {
     tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-5">
       <i class="bi bi-exclamation-triangle fs-1 d-block mb-2 text-danger"></i>
@@ -286,19 +288,16 @@ function getFilterData() {
   return {
     numberPart: val('filterNumberPart'),
     vin: val('filterVin'),
+    operator: val('filterOperator'),
     stock: val('filterStock'),
     status: val('filterStatus'),
-    operator: val('filterOperator'),
     dateEntryFrom: val('filterDateEntryFrom'),
-    dateEntryTo: val('filterDateEntryTo'),
-    reportingDateFrom: val('filterReportingDateFrom'),
-    reportingDateTo: val('filterReportingDateTo')
+    dateEntryTo: val('filterDateEntryTo')
   };
 }
 
 function clearFilters() {
-  ['filterNumberPart', 'filterVin', 'filterStock', 'filterStatus', 'filterOperator',
-   'filterDateEntryFrom', 'filterDateEntryTo', 'filterReportingDateFrom', 'filterReportingDateTo']
+  ['filterNumberPart', 'filterVin', 'filterOperator', 'filterStock', 'filterStatus', 'filterDateEntryFrom', 'filterDateEntryTo']
     .forEach(id => document.getElementById(id).value = '');
   currentPage = 0;
 
@@ -318,7 +317,7 @@ async function handleCreate() {
   const data = Object.fromEntries(new FormData(form).entries());
   delete data.status;
 
-  const required = ['numberPart', 'vin', 'claimApplicationForm', 'vehiculo', 'operator', 'dateEntry', 'stock'];
+  const required = ['numberPart', 'operator', 'dateEntry', 'stock'];
   for (const field of required) {
     if (!data[field]) {
       Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Completa todos los campos obligatorios', confirmButtonColor: '#C8102E' });
@@ -393,6 +392,7 @@ async function handleUpdate() {
     const pieces = paginatePieces(filtered);
     renderTable(pieces);
     renderPagination();
+    renderLabelingGrid();
   } catch (err) {
     Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Error al actualizar', confirmButtonColor: '#C8102E' });
   } finally {
@@ -405,20 +405,18 @@ function openViewModal(id) {
     document.getElementById('viewContent').innerHTML = `
       <div class="col-md-6">
         <div class="mb-3"><div class="detail-label">ID</div><div class="detail-value">${p.idPiece}</div></div>
-        <div class="mb-3"><div class="detail-label">Number Part</div><div class="detail-value">${p.numberPart}</div></div>
-        <div class="mb-3"><div class="detail-label">VIN</div><div class="detail-value" style="font-size:0.85rem">${p.vin}</div></div>
-        <div class="mb-3"><div class="detail-label">Vehicle</div><div class="detail-value">${p.vehiculo}</div></div>
-        <div class="mb-3"><div class="detail-label">Operator</div><div class="detail-value">${p.operator}</div></div>
+        <div class="mb-3"><div class="detail-label">Número de Parte</div><div class="detail-value">${p.numberPart}</div></div>
+        <div class="mb-3"><div class="detail-label">VIN</div><div class="detail-value" style="font-size:0.85rem">${p.vin || '—'}</div></div>
+        <div class="mb-3"><div class="detail-label">Vehículo</div><div class="detail-value">${p.vehiculo || '—'}</div></div>
+        <div class="mb-3"><div class="detail-label">Operador</div><div class="detail-value">${p.operator}</div></div>
+        <div class="mb-3"><div class="detail-label">Número de Reporte</div><div class="detail-value">${p.claimApplicationForm || '—'}</div></div>
       </div>
       <div class="col-md-6">
-        <div class="mb-3"><div class="detail-label">Stock</div><div class="detail-value">${badgeStock(p.stock)}</div></div>
-        <div class="mb-3"><div class="detail-label">Status</div><div class="detail-value">${badgeStatus(p.status)}</div></div>
-        <div class="mb-3"><div class="detail-label">Date Entry</div><div class="detail-value">${formatDateTime(p.dateEntry)}</div></div>
-        <div class="mb-3"><div class="detail-label">Reporting Date</div><div class="detail-value">${formatDateTime(p.reportingDate)}</div></div>
-        <div class="mb-3"><div class="detail-label">Claim Application Form</div><div class="detail-value">${p.claimApplicationForm}</div></div>
-      </div>
-      <div class="col-12">
-        <div class="mb-0"><div class="detail-label">Description</div><div class="detail-value">${p.description || 'Sin descripción'}</div></div>
+        <div class="mb-3"><div class="detail-label">Bodega/Stock</div><div class="detail-value">${badgeStock(p.stock)}</div></div>
+        <div class="mb-3"><div class="detail-label">Estado</div><div class="detail-value">${badgeStatus(p.status)}</div></div>
+        <div class="mb-3"><div class="detail-label">Fecha Bodega</div><div class="detail-value">${formatDateTime(p.dateEntry)}</div></div>
+        <div class="mb-3"><div class="detail-label">Fecha de Reporte</div><div class="detail-value">${formatDateTime(p.reportingDate)}</div></div>
+        <div class="mb-3"><div class="detail-label">Descripción</div><div class="detail-value">${p.description || 'Sin descripción'}</div></div>
       </div>`;
     new bootstrap.Modal(document.getElementById('viewModal')).show();
   }).catch(err => {
@@ -451,8 +449,192 @@ async function handleDelete(id) {
     const pieces = paginatePieces(filtered);
     renderTable(pieces);
     renderPagination();
+    renderLabelingGrid();
   } catch (err) {
     Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Error al eliminar', confirmButtonColor: '#C8102E' });
+  }
+}
+
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-nav-bar .nav-link').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+  document.querySelectorAll('.tab-content-pane').forEach(pane => {
+    pane.classList.toggle('active', pane.id === `tab-${tabName}`);
+  });
+  if (tabName === 'etiquetado') {
+    renderLabelingGrid();
+  }
+}
+
+function renderLabelingGrid() {
+  const grid = document.getElementById('labelingGrid');
+  if (!grid) return;
+
+  if (!allPieces || allPieces.length === 0) {
+    grid.innerHTML = `<div class="col-12 text-center text-muted py-5">
+      <i class="bi bi-inbox fs-1 d-block mb-2 text-byd"></i>
+      <span class="small">No hay piezas disponibles</span>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = allPieces.map(p => `
+    <div class="col-xl-3 col-lg-4 col-md-6">
+      <div class="card labeling-card ${selectedPieces.has(p.idPiece) ? 'selected' : ''}" data-id="${p.idPiece}">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="form-check labeling-check-wrap">
+              <input class="form-check-input labeling-check" type="checkbox" data-id="${p.idPiece}" ${selectedPieces.has(p.idPiece) ? 'checked' : ''}>
+            </div>
+            <div class="flex-grow-1 labeling-card-info" data-id="${p.idPiece}">
+              <div class="fw-bold text-truncate mb-1" title="${p.numberPart}">${p.numberPart}</div>
+              <div class="small text-muted">${p.claimApplicationForm ? 'Reporte: ' + p.claimApplicationForm : 'Sin reporte'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  updateSelectionUI();
+}
+
+function togglePieceSelection(id) {
+  if (selectedPieces.has(id)) {
+    selectedPieces.delete(id);
+  } else {
+    selectedPieces.add(id);
+  }
+  renderLabelingGrid();
+}
+
+function updateSelectionUI() {
+  const count = selectedPieces.size;
+  document.getElementById('selectedCountBadge').textContent = count;
+  document.getElementById('exportPdfBtn').disabled = count === 0;
+
+  const selectAllBtn = document.getElementById('selectAllBtn');
+  const deselectAllBtn = document.getElementById('deselectAllBtn');
+  if (count === allPieces.length && allPieces.length > 0) {
+    selectAllBtn.classList.add('d-none');
+    deselectAllBtn.classList.remove('d-none');
+  } else {
+    selectAllBtn.classList.remove('d-none');
+    deselectAllBtn.classList.add('d-none');
+  }
+}
+
+async function showQrModal(id) {
+  const piece = allPieces.find(p => p.idPiece === id);
+  if (!piece) return;
+
+  const modalEl = document.getElementById('qrModal');
+  const imgEl = document.getElementById('qrModalImage');
+  const subEl = document.getElementById('qrModalSubtitle');
+
+  document.getElementById('qrModalTitle').textContent = `QR · ${piece.numberPart || ''}`;
+  imgEl.src = '';
+  imgEl.style.display = 'none';
+
+  if (!piece.qrUuid) {
+    subEl.textContent = 'Esta pieza no tiene código QR';
+  } else {
+    subEl.textContent = 'Generando QR...';
+  }
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+
+  if (!piece.qrUuid) return;
+
+  try {
+    const base = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+    const qrContent = `${base}/public-piece.html?qrUuid=${piece.qrUuid}`;
+    const qr = qrcode(0, 'M');
+    qr.addData(qrContent);
+    qr.make();
+    const dataUrl = qr.createDataURL(8, 2);
+
+    imgEl.src = dataUrl;
+    imgEl.style.display = '';
+    subEl.textContent = piece.numberPart;
+    imgEl.onerror = () => { subEl.textContent = 'Error al mostrar QR'; imgEl.style.display = 'none'; };
+  } catch (err) {
+    subEl.textContent = 'Error al generar QR';
+    imgEl.style.display = 'none';
+    console.error('QR generation error:', err);
+  }
+}
+
+async function exportToPdf() {
+  const ids = [...selectedPieces];
+  if (ids.length === 0) return;
+
+  const pieces = ids.map(id => allPieces.find(p => p.idPiece === id)).filter(Boolean);
+
+  Swal.fire({ title: 'Generando PDF...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+  try {
+    const withQR = pieces.filter(p => p.qrUuid);
+    if (withQR.length === 0) {
+      Swal.close();
+      Swal.fire({ icon: 'warning', title: 'Sin QR', text: 'Ninguna pieza seleccionada tiene código QR', confirmButtonColor: '#C8102E' });
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'letter');
+
+    const margin = 15;
+    const cols = 3;
+    const rows = 4;
+    const cellW = (215.9 - 2 * margin) / cols;
+    const cellH = (279.4 - 2 * margin) / rows;
+    const qrSize = 42;
+    const perPage = cols * rows;
+
+    for (let i = 0; i < withQR.length; i++) {
+      if (i > 0 && i % perPage === 0) {
+        doc.addPage();
+      }
+
+      const idx = i % perPage;
+      const col = idx % cols;
+      const row = Math.floor(idx / cols);
+
+      const cellX = margin + col * cellW;
+      const cellY = margin + row * cellH;
+      const qrX = cellX + (cellW - qrSize) / 2;
+      const qrY = cellY + 5;
+
+      try {
+        const base = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+        const qrContent = `${base}/public-piece.html?qrUuid=${withQR[i].qrUuid}`;
+        const qr = qrcode(0, 'M');
+        qr.addData(qrContent);
+        qr.make();
+        const dataUrl = qr.createDataURL(4, 1);
+        doc.addImage(dataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
+      } catch {
+        // skip QR if generation fails
+      }
+
+      doc.setFontSize(8);
+      doc.text(
+        withQR[i].numberPart || '',
+        cellX + cellW / 2,
+        qrY + qrSize + 5,
+        { align: 'center' }
+      );
+    }
+
+    doc.save('etiquetas.pdf');
+    Swal.close();
+    Swal.fire({ icon: 'success', title: 'PDF generado', text: `${withQR.length} etiqueta(s) exportada(s)`, timer: 2000, showConfirmButton: false });
+  } catch (err) {
+    Swal.close();
+    Swal.fire({ icon: 'error', title: 'Texto', text: 'Error al generar PDF: ' + (err.message || 'desconocido'), confirmButtonColor: '#C8102E' });
   }
 }
 
@@ -515,6 +697,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn.classList.contains('page-num')) goToPage(parseInt(btn.dataset.page));
     else if (btn.classList.contains('page-nav')) goToPage(btn.dataset.page);
   });
+
+  document.getElementById('mainTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.nav-link');
+    if (!btn) return;
+    switchTab(btn.dataset.tab);
+  });
+
+  document.getElementById('labelingGrid').addEventListener('click', e => {
+    const info = e.target.closest('.labeling-card-info');
+    if (info) {
+      const id = parseInt(info.dataset.id);
+      showQrModal(id);
+    }
+  });
+
+  document.getElementById('labelingGrid').addEventListener('change', e => {
+    if (e.target.classList.contains('labeling-check')) {
+      const id = parseInt(e.target.dataset.id);
+      togglePieceSelection(id);
+    }
+  });
+
+  document.getElementById('selectAllBtn').addEventListener('click', () => {
+    allPieces.forEach(p => selectedPieces.add(p.idPiece));
+    renderLabelingGrid();
+  });
+
+  document.getElementById('deselectAllBtn').addEventListener('click', () => {
+    selectedPieces.clear();
+    renderLabelingGrid();
+  });
+
+  document.getElementById('exportPdfBtn').addEventListener('click', exportToPdf);
 
   const filterToggle = document.querySelector('[data-bs-target="#filterCollapse"]');
   if (filterToggle) {

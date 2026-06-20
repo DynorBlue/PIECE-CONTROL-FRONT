@@ -284,6 +284,74 @@ body {
 .fade-in:nth-child(9) { animation-delay: 0.24s; }
 .fade-in:nth-child(10) { animation-delay: 0.27s; }
 
+.tab-nav-bar {
+  background: #fff;
+  border-bottom: 1px solid var(--byd-border);
+  padding: 8px 0;
+}
+
+.tab-nav-bar .nav-pills .nav-link {
+  color: #666;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.tab-nav-bar .nav-pills .nav-link:hover {
+  color: var(--byd-red);
+  background: rgba(200, 16, 46, 0.06);
+}
+
+.tab-nav-bar .nav-pills .nav-link.active {
+  color: #fff;
+  background: var(--byd-red);
+}
+
+.tab-content-pane {
+  display: none;
+}
+
+.tab-content-pane.active {
+  display: block;
+}
+
+.labeling-card {
+  cursor: pointer;
+  border: 2px solid var(--byd-border);
+  transition: all 0.15s ease;
+  border-radius: 10px;
+}
+
+.labeling-card:hover {
+  border-color: var(--byd-red);
+  box-shadow: 0 2px 12px var(--byd-shadow);
+}
+
+.labeling-card.selected {
+  border-color: var(--byd-red);
+  background: rgba(200, 16, 46, 0.04);
+}
+
+.labeling-card .card-body {
+  padding: 12px 14px;
+}
+
+.labeling-check-wrap {
+  padding-top: 2px;
+}
+
+.labeling-check-wrap .form-check-input:checked {
+  background-color: var(--byd-red);
+  border-color: var(--byd-red);
+}
+
+.labeling-card-info {
+  cursor: pointer;
+  min-width: 0;
+}
+
 @media (max-width: 768px) {
   .login-card {
     padding: 30px 20px;
