@@ -464,6 +464,8 @@ function switchTab(tabName) {
   });
   if (tabName === 'etiquetado') {
     renderLabelingGrid();
+  } else if (tabName === 'estadisticas') {
+    renderEstadisticas();
   }
 }
 
@@ -523,6 +525,113 @@ function updateSelectionUI() {
     selectAllBtn.classList.remove('d-none');
     deselectAllBtn.classList.add('d-none');
   }
+}
+
+const STATUS_LABELS = {
+  CREATED: 'Creadas',
+  ACTIVE: 'Activas',
+  THIRTY_DAYS: '30 Días',
+  SIXTY_DAYS: '60 Días',
+  DESTROYED: 'Destruidas',
+  LOST: 'Perdidas'
+};
+
+const STATUS_CLASS = {
+  CREATED: 'sm',
+  ACTIVE: 'lg',
+  THIRTY_DAYS: 'sm',
+  SIXTY_DAYS: 'md',
+  DESTROYED: 'danger',
+  LOST: 'dark'
+};
+
+function renderEstadisticas() {
+  if (!allPieces || allPieces.length === 0) return;
+
+  const total = allPieces.length;
+  const byStatus = {};
+  const byStock = { BIG: 0, LITTLE: 0 };
+
+  allPieces.forEach(p => {
+    const st = p.status || 'CREATED';
+    byStatus[st] = (byStatus[st] || 0) + 1;
+    if (p.stock === 'BIG') byStock.BIG++;
+    else if (p.stock === 'LITTLE') byStock.LITTLE++;
+  });
+
+  document.getElementById('statTotalPieces').textContent = total;
+  document.getElementById('statThirtyDays').textContent = byStatus.THIRTY_DAYS || 0;
+  document.getElementById('statSixtyDays').textContent = byStatus.SIXTY_DAYS || 0;
+  document.getElementById('statDestroyed').textContent = byStatus.DESTROYED || 0;
+
+  const statusOrder = ['CREATED', 'ACTIVE', 'THIRTY_DAYS', 'SIXTY_DAYS', 'DESTROYED', 'LOST'];
+  const maxStatus = Math.max(...statusOrder.map(s => byStatus[s] || 0), 1);
+
+  document.getElementById('statsStatusBars').innerHTML = statusOrder.map(s => {
+    const count = byStatus[s] || 0;
+    const pct = Math.round((count / maxStatus) * 100);
+    const cls = STATUS_CLASS[s] || 'dark';
+    return `<div class="stat-bar-row">
+      <div class="stat-bar-label">${STATUS_LABELS[s] || s}</div>
+      <div class="stat-bar-track">
+        <div class="stat-bar-fill ${cls}" style="width:${pct}%">${count > 0 ? count : ''}</div>
+      </div>
+      <div class="stat-bar-count">${count}</div>
+    </div>`;
+  }).join('');
+
+  const maxStock = Math.max(byStock.BIG, byStock.LITTLE, 1);
+  document.getElementById('statsStockBars').innerHTML = `
+    <div class="stat-bar-row">
+      <div class="stat-bar-label">BIG</div>
+      <div class="stat-bar-track">
+        <div class="stat-bar-fill lg" style="width:${Math.round((byStock.BIG / maxStock) * 100)}%">${byStock.BIG > 0 ? byStock.BIG : ''}</div>
+      </div>
+      <div class="stat-bar-count">${byStock.BIG}</div>
+    </div>
+    <div class="stat-bar-row">
+      <div class="stat-bar-label">LITTLE</div>
+      <div class="stat-bar-track">
+        <div class="stat-bar-fill sm" style="width:${Math.round((byStock.LITTLE / maxStock) * 100)}%">${byStock.LITTLE > 0 ? byStock.LITTLE : ''}</div>
+      </div>
+      <div class="stat-bar-count">${byStock.LITTLE}</div>
+    </div>`;
+
+  const attention = allPieces.filter(p => p.status === 'THIRTY_DAYS' || p.status === 'SIXTY_DAYS' || p.status === 'DESTROYED');
+  const container = document.getElementById('statsAttentionTable');
+
+  if (attention.length === 0) {
+    container.innerHTML = `<div class="text-center text-muted py-4">
+      <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+      <span class="small">No hay piezas que requieran atención</span>
+    </div>`;
+    return;
+  }
+
+  const statusBadge = {
+    THIRTY_DAYS: 'bg-warning text-dark',
+    SIXTY_DAYS: 'bg-primary',
+    DESTROYED: 'bg-danger'
+  };
+
+  container.innerHTML = `<div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead class="table-byd-header"><tr>
+      <th>ID</th>
+      <th>Número de Parte</th>
+      <th>VIN</th>
+      <th>Operador</th>
+      <th>Estado</th>
+      <th>Fecha Bodega</th>
+    </tr></thead><tbody>
+    ${attention.map(p => `<tr class="attention-piece">
+      <td class="fw-bold text-center" style="color:var(--byd-red)">${p.idPiece}</td>
+      <td>${p.numberPart}</td>
+      <td>${p.vin || '—'}</td>
+      <td>${p.operator || '—'}</td>
+      <td><span class="badge ${statusBadge[p.status] || 'bg-secondary'}">${STATUS_LABELS[p.status] || p.status}</span></td>
+      <td class="small">${formatDateTime(p.dateEntry)}</td>
+    </tr>`).join('')}
+    </tbody></table></div>`;
 }
 
 async function showQrModal(id) {

@@ -16,12 +16,13 @@
     .piece-card-body dt { font-size: .75rem; text-transform: uppercase; color: #6c757d; margin-top: 12px; letter-spacing: .5px; }
     .piece-card-body dd { font-size: 1rem; margin: 0 0 0 0; font-weight: 500; }
     .piece-card-body dt:first-child { margin-top: 0; }
+    .piece-id-badge { display: inline-block; background: #C8102E; color: #fff; font-weight: 800; font-size: .85rem; padding: 2px 14px; border-radius: 20px; }
     .loading { text-align: center; padding: 40px; color: #6c757d; }
     .loading .spinner { width: 40px; height: 40px; margin: 0 auto 12px; border: 4px solid #e9ecef; border-top-color: #C8102E; border-radius: 50%; animation: spin .8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .error-card { text-align: center; padding: 40px; color: #C8102E; }
     .error-card i { font-size: 3rem; margin-bottom: 12px; }
-    .badge { font-size: .8rem; padding: 4px 12px; }
+    .badge { font-size: .8rem; padding: 4px 12px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
   </style>
 </head>
 <body>
@@ -39,6 +40,9 @@
         <p id="errorMessage">No se encontró la pieza</p>
       </div>
       <div class="d-none" id="pieceData">
+        <div class="text-center mb-3">
+          <span class="piece-id-badge" id="pIdBadge">#0</span>
+        </div>
         <dl>
           <dt>Número de parte</dt>
           <dd id="pNumberPart">—</dd>
@@ -46,8 +50,12 @@
           <dd id="pVin">—</dd>
           <dt>Vehículo</dt>
           <dd id="pVehiculo">—</dd>
+          <dt>Número de Reporte</dt>
+          <dd id="pClaimForm">—</dd>
           <dt>Descripción</dt>
           <dd id="pDescription">—</dd>
+          <dt>Fecha de Reporte</dt>
+          <dd id="pReportDate">—</dd>
           <dt>Operador</dt>
           <dd id="pOperator">—</dd>
           <dt>Stock</dt>
@@ -84,13 +92,20 @@
         document.getElementById('loadingState').classList.add('d-none');
         document.getElementById('pieceData').classList.remove('d-none');
 
+        document.getElementById('pIdBadge').textContent = `#${data.idPiece || '?'}`;
         document.getElementById('pNumberPart').textContent = data.numberPart || '—';
         document.getElementById('pVin').textContent = data.vin || '—';
         document.getElementById('pVehiculo').textContent = data.vehiculo || '—';
+        document.getElementById('pClaimForm').textContent = data.claimApplicationForm || '—';
         document.getElementById('pDescription').textContent = data.description || '—';
+        document.getElementById('pReportDate').textContent = data.reportingDate ? new Date(data.reportingDate).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
         document.getElementById('pOperator').textContent = data.operator || '—';
-        document.getElementById('pStock').textContent = data.stock || '—';
-        document.getElementById('pStatus').textContent = data.status || '—';
+
+        const stockBadges = { BIG: 'bg-primary', LITTLE: 'bg-secondary' };
+        const statusBadges = { CREATED: 'bg-warning text-dark', ACTIVE: 'bg-success', THIRTY_DAYS: 'bg-info text-dark', SIXTY_DAYS: 'bg-primary', DESTROYED: 'bg-danger', LOST: 'bg-dark' };
+        document.getElementById('pStock').innerHTML = data.stock ? `<span class="badge ${stockBadges[data.stock] || 'bg-secondary'}">${data.stock}</span>` : '—';
+        document.getElementById('pStatus').innerHTML = data.status ? `<span class="badge ${statusBadges[data.status] || 'bg-secondary'}">${data.status}</span>` : '—';
+
         document.getElementById('pDateEntry').textContent = data.dateEntry ? new Date(data.dateEntry).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
       } catch (err) {
         document.getElementById('loadingState').classList.add('d-none');

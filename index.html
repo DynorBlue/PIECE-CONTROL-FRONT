@@ -68,6 +68,11 @@
             <i class="bi bi-qr-code me-1"></i>Zona de Etiquetado
           </button>
         </li>
+        <li class="nav-item">
+          <button class="nav-link" data-tab="estadisticas">
+            <i class="bi bi-bar-chart-fill me-1"></i>Estadísticas
+          </button>
+        </li>
       </ul>
     </div>
   </div>
@@ -221,6 +226,90 @@
               <i class="bi bi-inbox fs-1 d-block mb-2 text-byd"></i>
               <span class="small">Cargando piezas...</span>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content-pane" id="tab-estadisticas">
+    <div class="container-fluid py-4">
+      <h4 class="mb-3 fw-bold">
+        <i class="bi bi-bar-chart-fill me-2 text-byd"></i>Estadísticas
+      </h4>
+
+      <div class="row g-3 mb-4" id="statsSummaryCards">
+        <div class="col-6 col-md-3">
+          <div class="card stat-card border-0 h-100">
+            <div class="card-body text-center">
+              <div class="stat-number" id="statTotalPieces">0</div>
+              <div class="stat-label">Total Piezas</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card stat-warning border-0 h-100">
+            <div class="card-body text-center">
+              <div class="stat-number" id="statThirtyDays">0</div>
+              <div class="stat-label">30 Días</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card stat-primary border-0 h-100">
+            <div class="card-body text-center">
+              <div class="stat-number" id="statSixtyDays">0</div>
+              <div class="stat-label">60 Días</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card stat-danger border-0 h-100">
+            <div class="card-body text-center">
+              <div class="stat-number" id="statDestroyed">0</div>
+              <div class="stat-label">A Destruir</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-7">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart me-2 text-byd"></i>Distribución por Estado</h6>
+            </div>
+            <div class="card-body" id="statsStatusBars">
+              <div class="text-center text-muted py-4">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                <span class="small">Cargando estadísticas...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-boxes me-2 text-byd"></i>Distribución por Stock</h6>
+            </div>
+            <div class="card-body" id="statsStockBars">
+              <div class="text-center text-muted py-4">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                <span class="small">Cargando estadísticas...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h6 class="mb-0 fw-bold"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Atención Requerida</h6>
+        </div>
+        <div class="card-body p-0" id="statsAttentionTable">
+          <div class="text-center text-muted py-4">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            <span class="small">Cargando estadísticas...</span>
           </div>
         </div>
       </div>
